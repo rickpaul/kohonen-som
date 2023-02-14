@@ -35,26 +35,16 @@ TODO:
 
 # %% ---------------------------------- Package Imports
 
-import math
-import numpy as np
-import pandas as pd
-#
-from xbbg import blp
-#
+
 from matplotlib import pyplot as plt
 from matplotlib import patches as patches
 #
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.datasets import make_blobs
-
 #
 
-# %% ---------------------------------- Classes
+# %% ---------------------------------- Local Imports
 
-
-# %% ---------------------------------- Basic SOM
-
-
+from SOM import Basic_SOM
 
 # %% ---------------------------------- Testing Basic SOM
 if(0):
