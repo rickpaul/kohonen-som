@@ -32,6 +32,17 @@ class abstract_SOM(ABC):
     def _descale_data(self, X):
         pass
     
+    # @abstractproperty
+    # def X_hat(self):
+    #     pass
+    
+    @property
+    def X_hat(self):
+        try:
+            return(self._descale_data(self.vecs, self._scaling_params))
+        except:
+            return(np.array([]))
+    
     def _update_dataset(self, X):
         self._X, self._scaling_params = self._scale_data(X)
         self.training_size, self.num_dims = self._X.shape
@@ -57,9 +68,23 @@ class abstract_SOM(ABC):
         dists = np.linalg.norm(self.vecs - x, axis=1)
         idx_ = np.argmin(dists)
         return(idx_, dists[idx_])
+
+    def _save_fit_distances(self):
+        sum_dists = [0 for _ in range(len(self.vecs))]
+        num_dists = [0 for _ in range(len(self.vecs))]
+        for idx in range(self._X.shape[0]):
+            bmu, bmu_dist = self._find_bmu(self._X[idx])
+            sum_dists[bmu] += bmu_dist
+            num_dists[bmu] += 1   
+        self.sum_dists = np.array(sum_dists)
+        self.num_dists = np.array(num_dists)
             
     def fit(self, X):
         self._update_dataset(X)
         self._update_architecture()
         self._fit_SOM()
-        self.X_hat = self._descale_data(self.vecs, self._scaling_params)
+        self._save_fit_distances()
+        
+        
+    
+# %%

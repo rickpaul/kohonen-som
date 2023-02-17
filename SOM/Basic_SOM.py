@@ -1,12 +1,13 @@
 
 # %% ---------------------------------- Package Imports
 
+import math
 import numpy as np
 
 # %% ---------------------------------- Local Imports
 
-from Abstract_SOM import abstract_SOM
-from _scaling_helper import (
+from SOM.Abstract_SOM import abstract_SOM
+from SOM._scaling_helper import (
     scale_data_min_max_columnar, 
     de_scale_data_min_max
 )
@@ -33,6 +34,7 @@ class Basic_SOM(abstract_SOM):
         self.init_learning_rate = learning_rate
         self.init_n_radius = neighborhood_radius
         self.manhattan_distance = manhattan_distance
+        self.verbose = False
 
     @property
     def learning_rate(self):
@@ -47,13 +49,19 @@ class Basic_SOM(abstract_SOM):
     
     def _descale_data(self, X, scaling_dict):
         return de_scale_data_min_max(X, scaling_dict)
+    
+    def _update_architecture(self):
+        super()._update_architecture()
+        self.init_n_radius = math.ceil(self.SOM_size/2)
 
     def _fit_SOM(self):
         for iter in range(self.max_iter):
-            if(iter % 1000 == 0):
+            if(self.verbose and iter % 1000 == 0):
                 print(f"Iteration: {iter}")
             idx = np.random.randint(self.training_size)
             bmu, bmu_dist = self._find_bmu(self._X[idx])
             neighbors = np.where(self._find_neighbors(bmu))[0]
             self.vecs[neighbors] += self.learning_rate * (self._X[idx] - self.vecs[neighbors]) ###### This is the key line in question
             self.curr_iter = iter # TODO: I don't think we need this
+
+    

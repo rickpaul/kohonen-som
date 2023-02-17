@@ -35,7 +35,9 @@ TODO:
 
 # %% ---------------------------------- Package Imports
 
-
+import numpy as np
+import pandas as pd
+#
 from matplotlib import pyplot as plt
 from matplotlib import patches as patches
 #
@@ -43,32 +45,52 @@ from sklearn.datasets import make_blobs
 #
 
 # %% ---------------------------------- Local Imports
+from sys import modules
+from importlib import reload
+for m in ['SOM.Basic_SOM', 'SOM.Abstract_SOM']: 
+    if(m in modules):
+        modules[m] = reload(modules[m])
 
-from SOM import Basic_SOM
+from SOM.Basic_SOM import Basic_SOM as bsom
 
-# %% ---------------------------------- Testing Basic SOM
-if(0):
+# %% ---------------------------------- Testing Basic SOM (blobs)
+if(1):
+    s = bsom()
     # Generate
-    X = make_blobs(n_samples=1000, n_features=2, centers=3, cluster_std=1.5, random_state=101)[0]
+    X = make_blobs(n_samples=100, n_features=2, centers=3, cluster_std=1.5)[0]
+    s._update_dataset(X)
+    s._update_architecture()
+    plt.scatter(X[:, 0], X[:, 1], c="k", s=10, alpha=.6)
+    plt.scatter(s.X_hat[:, 0], s.X_hat[:, 1], c="b", s=10, alpha=0.2, label='unfit vectors')
     # Fit
-    s = Basic_SOM()
     s.fit(X)
     # Plot
-    plt.scatter(X[:, 0], X[:, 1], c="k", s=10, alpha=0.2)
-    plt.scatter(s.X_hat[:, 0], s.X_hat[:, 1], c="r", s=10, alpha=0.8)
+    plt.scatter(s.X_hat[:, 0], s.X_hat[:, 1], c="r", s=10, alpha=0.8, label='fit vectors')
 
 
-fig = plt.figure()
+# %% ---------------------------------- Testing Basic SOM (colors)
 
-ax = fig.add_subplot(111, aspect='equal')
-ax.set_xlim((0, s.SOM_size+1))
-ax.set_ylim((0, s.SOM_size+1))
-ax.set_title(f'Self-Organising Map after {s.max_iter} iterations')
+def plot_som(s):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, aspect='equal')
+    ax.set_xlim((0, s.SOM_size+1))
+    ax.set_ylim((0, s.SOM_size+1))
+    ax.set_title(f'Self-Organising Map after {s.curr_iter} iterations')
+    # plot
+    for x in range(s.SOM_size):
+        for y in range(s.SOM_size):
+            ax.add_patch(patches.Rectangle((x+0.5, y+0.5), 1, 1,
+                        facecolor=s.vecs[x*s.SOM_size+y,:],
+                        edgecolor='none'))
+    plt.show()
 
-# plot
-for x in range(1, net.shape[0] + 1):
-    for y in range(1, net.shape[1] + 1):
-        ax.add_patch(patches.Rectangle((x-0.5, y-0.5), 1, 1,
-                     facecolor=net[x-1,y-1,:],
-                     edgecolor='none'))
-plt.show()
+if(1):
+    s = bsom()
+    # Set random seed
+    np.random.seed(42)
+    X = np.random.randint(0, 255, (1000, 3))
+    s._update_dataset(X)
+    s._update_architecture()
+    plot_som(s)
+    s.fit(X)
+    plot_som(s)
