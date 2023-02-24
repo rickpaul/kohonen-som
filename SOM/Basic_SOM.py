@@ -6,7 +6,7 @@ import numpy as np
 
 # %% ---------------------------------- Local Imports
 
-from SOM.Abstract_SOM import abstract_SOM
+from SOM.Base_SOM import Base_SOM
 from SOM._scaling_helper import (
     scale_data_min_max_columnar, 
     de_scale_data_min_max
@@ -20,7 +20,7 @@ GROWTH_THRESHOLD = -DATA_DIMENSION*np.log(SPREAD_FACTOR)
 
 # %% ---------------------------------- Class
 
-class Basic_SOM(abstract_SOM):
+class Basic_SOM(Base_SOM):
     """
     Reference:
     https://towardsdatascience.com/understanding-self-organising-map-neural-network-with-python-code-7a77f501e985
@@ -29,12 +29,12 @@ class Basic_SOM(abstract_SOM):
     def __init__(self,
                  learning_rate=0.5,
                  neighborhood_radius=4,
-                 manhattan_distance=True,
+                 distance_metric='euclidean',
                  ):
+        super().__init__(distance_metric=distance_metric)
         self.init_learning_rate = learning_rate
         self.init_n_radius = neighborhood_radius
-        self.manhattan_distance = manhattan_distance
-        self.verbose = False
+        self.verbose = True
 
     @property
     def learning_rate(self):
@@ -54,6 +54,10 @@ class Basic_SOM(abstract_SOM):
         super()._update_architecture()
         self.init_n_radius = math.ceil(self.SOM_size/2)
 
+    def _initialize_vecs(self):
+        print('Initializing vectors (sub)')
+        self.vecs = np.random.uniform(low=0, high=1, size=(self.SOM_size**2, self.num_dims))
+
     def _fit_SOM(self):
         for iter in range(self.max_iter):
             if(self.verbose and iter % 1000 == 0):
@@ -65,3 +69,4 @@ class Basic_SOM(abstract_SOM):
             self.curr_iter = iter # TODO: I don't think we need this
 
     
+# %%

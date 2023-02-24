@@ -1,7 +1,9 @@
-
+# %% ---------------------------------- Notes
 """
-Sources: 
+Sources: Analyzed and Discarded
 +   https://medium.com/@abhinavr8/self-organizing-maps-ff5853a118d4
+...   https://github.com/abhinavralhan/kohonen-maps/blob/master/som-random.ipynb
+Sources: 
 +   https://www.superdatascience.com/blogs/self-organizing-maps-soms-how-do-self-organizing-maps-learn-part-1/
 +   https://www.superdatascience.com/blogs/self-organizing-maps-soms-how-do-self-organizing-maps-learn-part-2/
 +   https://medium.com/geekculture/dynamic-self-organizing-maps-gsom-60a785fbe39d
@@ -21,8 +23,14 @@ Sources:
     ... SOM for imputation? Abstract only.
 +   https://www.researchgate.net/profile/Barbara-Hammer/publication/242506480_Perspectives_of_Neural-Symbolic_Integration/links/00463531ec4827629d000000/Perspectives-of-Neural-Symbolic-Integration.pdf#page=139
     ... SOM for Time Series
++   https://perso.uclouvain.be/michel.verleysen/papers/neuralnetworks02jl.pdf
 TODO:
-+   X and y data
++   How to determine if a SOM is good?
++   X and y data (i.e. independent and dependent)
++   toroidal topology
++   PCA Initialization
++   hexagonal topology
++   gaussian neighborhood function
 +   Weighting of the vectors (if X and y, based on kullback-leibler divergence)
 +   How to deal with missing data?
 +   Incorporate mexican hat update function
@@ -31,6 +39,12 @@ TODO:
 +   Implement with PCA?
 +   Compare with SOMPY?
 +   Compare with GEMA (https://github.com/ufvceiec/GEMA)?
++   Visualization - net
++   Visualization - component plane
++   Visualization - U-Matrix
++   Visualization - Sammon's mapping
++   Visualization - https://weber.itn.liu.se/~aidvi/courses/06/dm/Seminars2011/SOM(3).pdf
+
 """
 
 # %% ---------------------------------- Package Imports
@@ -47,7 +61,8 @@ from sklearn.datasets import make_blobs
 # %% ---------------------------------- Local Imports
 from sys import modules
 from importlib import reload
-for m in ['SOM.Basic_SOM', 'SOM.Abstract_SOM']: 
+
+for m in ['SOM.Basic_SOM', 'SOM.Abstract_SOM', 'SOM.Base_SOM']: 
     if(m in modules):
         modules[m] = reload(modules[m])
 
@@ -61,7 +76,7 @@ if(1):
     s._update_dataset(X)
     s._update_architecture()
     plt.scatter(X[:, 0], X[:, 1], c="k", s=10, alpha=.6)
-    plt.scatter(s.X_hat[:, 0], s.X_hat[:, 1], c="b", s=10, alpha=0.2, label='unfit vectors')
+    plt.scatter(s.X_hat[:, 0], s.X_hat[:, 1], c="b", s=10, alpha=0.6, label='unfit vectors')
     # Fit
     s.fit(X)
     # Plot
@@ -84,7 +99,7 @@ def plot_som(s):
                         edgecolor='none'))
     plt.show()
 
-if(1):
+if(0):
     s = bsom()
     # Set random seed
     np.random.seed(42)
